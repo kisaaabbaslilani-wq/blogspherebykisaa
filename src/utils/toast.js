@@ -1,21 +1,14 @@
 export function showToast(message) {
   const toast = document.createElement("div");
-
+  toast.className = "toast";
   toast.innerText = message;
-
-  toast.style.position = "fixed";
-  toast.style.top = "20px";
-  toast.style.right = "20px";
-  toast.style.background = "#1f2937";
-  toast.style.color = "white";
-  toast.style.padding = "10px 15px";
-  toast.style.borderRadius = "5px";
-  toast.style.zIndex = "9999";
-  toast.style.fontSize = "14px";
 
   document.body.appendChild(toast);
 
   setTimeout(() => {
-    toast.remove();
-  }, 2000);
+    toast.style.transition = "opacity 0.3s ease, transform 0.3s ease";
+    toast.style.opacity = "0";
+    toast.style.transform = "translateX(40px)";
+    setTimeout(() => toast.remove(), 300);
+  }, 2400);
 }

@@ -1,36 +1,80 @@
 import { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
+import { Link, useParams } from "react-router-dom";
 import { db } from "../firebase/firebaseConfig";
-import { useParams } from "react-router-dom";
+import Loader from "../components/Loader";
+import { formatDate, initial, readTime } from "../utils/format";
+import { FaArrowLeft, FaClock } from "react-icons/fa";
 
 function BlogDetails() {
   const { id } = useParams();
   const [blog, setBlog] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchBlog = async () => {
-      const snap = await getDoc(doc(db, "blogs", id));
-      setBlog(snap.data());
+      try {
+        const snap = await getDoc(doc(db, "blogs", id));
+        setBlog(snap.exists() ? snap.data() : null);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchBlog();
   }, [id]);
 
-  if (!blog) return <p>Loading...</p>;
+  if (loading) return <Loader text="Loading blog..." />;
+
+  if (!blog) {
+    return (
+      <div className="empty">
+        <div className="empty-icon">🔍</div>
+        <h3>Blog not found</h3>
+        <p>This post may have been removed or the link is incorrect.</p>
+        <Link to="/blogs" className="btn">
+          Back to Blogs
+        </Link>
+      </div>
+    );
+  }
 
   return (
-    <div className="blog-details">
-      
+    <article className="blog-details fade-up">
+      <Link to="/blogs" className="back-link">
+        <FaArrowLeft /> Back to Blogs
+      </Link>
+
       {blog.imageUrl && (
-        <img src={blog.imageUrl} className="detail-img" />
+        <img src={blog.imageUrl} alt={blog.title} className="detail-img" />
       )}
 
-      <h2>{blog.title}</h2>
+      <h1>{blog.title}</h1>
 
-      <p className="blog-author">By: {blog.author}</p>
+      <div className="detail-meta">
+        <div className="avatar">{initial(blog.author)}</div>
+        <div className="who">
+          <span className="name">{blog.author || "Anonymous"}</span>
+          <span className="date">
+            {formatDate(blog.createdAt)}
+            {blog.content && (
+              <>
+                {" · "}
+                <FaClock style={{ verticalAlign: "-1px" }} />{" "}
+                {readTime(blog.content)} min read
+              </>
+            )}
+          </span>
+        </div>
+      </div>
 
-      <p>{blog.content}</p>
-    </div>
+      <div
+        className="blog-body"
+        dangerouslySetInnerHTML={{ __html: blog.content }}
+      />
+    </article>
   );
 }
 

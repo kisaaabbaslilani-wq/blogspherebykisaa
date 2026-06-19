@@ -1,22 +1,29 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import {
   FaHome,
   FaBook,
-  FaPlusCircle,
+  FaPenNib,
   FaUser,
   FaSignOutAlt,
   FaSignInAlt,
-  FaUserPlus,
+  FaFeatherAlt,
+  FaBars,
+  FaTimes,
 } from "react-icons/fa";
 
 function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+
+  const close = () => setOpen(false);
 
   const handleLogout = async () => {
     try {
       await logout();
+      close();
       navigate("/login");
     } catch (error) {
       console.log(error);
@@ -24,52 +31,57 @@ function Navbar() {
   };
 
   return (
-    <nav>
-      <Link to="/">
-        <FaHome />
-        Home
-      </Link>
+    <nav className="navbar">
+      <div className="navbar-inner">
+        <Link to="/" className="brand" onClick={close}>
+          <span className="brand-mark">
+            <FaFeatherAlt />
+          </span>
+          Blog<span>Sphere</span>
+        </Link>
 
-      <Link to="/blogs">
-        <FaBook />
-        Blogs
-      </Link>
+        <button
+          className="nav-toggle"
+          aria-label="Toggle menu"
+          onClick={() => setOpen((o) => !o)}
+        >
+          {open ? <FaTimes /> : <FaBars />}
+        </button>
 
-      {user ? (
-        <>
-          <Link to="/create-blog">
-            <FaPlusCircle />
-            Create Blog
-          </Link>
+        <div className={`nav-links ${open ? "open" : ""}`}>
+          <NavLink to="/" end onClick={close}>
+            <FaHome /> Home
+          </NavLink>
 
-          <Link to="/my-blogs">
-            <FaBook />
-            My Blogs
-          </Link>
+          <NavLink to="/blogs" onClick={close}>
+            <FaBook /> Blogs
+          </NavLink>
 
-          <Link to="/profile">
-            <FaUser />
-            Profile
-          </Link>
+          {user ? (
+            <>
+              <NavLink to="/create-blog" onClick={close}>
+                <FaPenNib /> Write
+              </NavLink>
 
-          <button onClick={handleLogout}>
-            <FaSignOutAlt />
-            Logout
-          </button>
-        </>
-      ) : (
-        <>
-          <Link to="/login">
-            <FaSignInAlt />
-            Login
-          </Link>
+              <NavLink to="/my-blogs" onClick={close}>
+                <FaBook /> My Blogs
+              </NavLink>
 
-          <Link to="/signup">
-            <FaUserPlus />
-            Signup
-          </Link>
-        </>
-      )}
+              <NavLink to="/profile" onClick={close}>
+                <FaUser /> Profile
+              </NavLink>
+
+              <button onClick={handleLogout}>
+                <FaSignOutAlt /> Logout
+              </button>
+            </>
+          ) : (
+            <NavLink to="/login" onClick={close} className="btn btn-sm">
+              <FaSignInAlt /> Login
+            </NavLink>
+          )}
+        </div>
+      </div>
     </nav>
   );
 }

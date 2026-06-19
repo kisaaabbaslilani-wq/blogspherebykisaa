@@ -1,9 +1,8 @@
-function Loader() {
+function Loader({ text = "Loading..." }) {
   return (
-    <div className="loading">
-      <div style={{ textAlign: "center" }}>
-        <p>Loading...</p>
-      </div>
+    <div className="spinner">
+      <div className="ring" />
+      <p>{text}</p>
     </div>
   );
 }
