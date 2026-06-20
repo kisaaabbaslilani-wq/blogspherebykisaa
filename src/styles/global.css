@@ -798,9 +798,7 @@ textarea { min-height: 200px; resize: vertical; line-height: 1.7; }
 @keyframes fade { from { opacity: 0; } }
 @keyframes pop { from { opacity: 0; transform: scale(0.92); } }
 
-/* =========================================================
-   TOAST
-========================================================= */
+
 .toast {
   position: fixed;
   top: 22px;

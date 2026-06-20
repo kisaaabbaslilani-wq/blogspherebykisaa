@@ -11,7 +11,7 @@ import { FaPenNib } from "react-icons/fa";
 function CreateBlog() {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
-  const [imageUrl, setImageUrl] = useState(""); // 🔥 NEW
+  const [imageUrl, setImageUrl] = useState("");
   const [content, setContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -59,18 +59,17 @@ function CreateBlog() {
     try {
       setSubmitting(true);
 
-      const docRef = await addDoc(collection(db, "blogs"), {
+      await addDoc(collection(db, "blogs"), {
         title: title.trim(),
         author: author.trim(),
         content,
-        imageUrl: imageUrl.trim(), // 🔥 SAVE LINK
+        imageUrl: imageUrl.trim(),
         userId: user.uid,
         createdAt: serverTimestamp(),
       });
 
       showToast("Blog published successfully! 🎉");
       navigate("/blogs");
-
     } catch (error) {
       console.error(error);
       showToast(error.message || "Failed to create blog");
@@ -85,15 +84,20 @@ function CreateBlog() {
 
       <div className="field">
         <label>Title</label>
-        <input value={title} onChange={(e) => setTitle(e.target.value)} />
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
       </div>
 
       <div className="field">
         <label>Author Name</label>
-        <input value={author} onChange={(e) => setAuthor(e.target.value)} />
+        <input
+          value={author}
+          onChange={(e) => setAuthor(e.target.value)}
+        />
       </div>
 
-      {/* 🔥 NEW IMAGE URL FIELD */}
       <div className="field">
         <label>Image URL (optional)</label>
         <input
@@ -113,8 +117,18 @@ function CreateBlog() {
         />
       </div>
 
-      <button type="submit" className="btn-block" disabled={submitting}>
-        {submitting ? "⏳ Publishing..." : <><FaPenNib /> Publish Blog</>}
+      <button
+        type="submit"
+        className="btn-block"
+        disabled={submitting}
+      >
+        {submitting ? (
+          "⏳ Publishing..."
+        ) : (
+          <>
+            <FaPenNib /> Publish Blog
+          </>
+        )}
       </button>
     </form>
   );

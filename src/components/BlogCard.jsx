@@ -14,11 +14,14 @@ import {
 
 function BlogCard({ blog, onDeleted }) {
   const { user } = useAuth();
+
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   const isOwner = user?.uid === blog.userId;
-  const preview = stripHtml(blog.content);
+  const preview = stripHtml(blog.content || "");
+
+  const image = blog.imageUrl || blog.coverImage;
 
   const handleDelete = async () => {
     if (!isOwner) {
@@ -28,10 +31,16 @@ function BlogCard({ blog, onDeleted }) {
 
     try {
       setDeleting(true);
+
       await deleteDoc(doc(db, "blogs", blog.id));
+
       showToast("Blog deleted successfully");
+
       setShowConfirm(false);
-      if (onDeleted) onDeleted(blog.id);
+
+      if (onDeleted) {
+        onDeleted(blog.id);
+      }
     } catch (error) {
       console.error(error);
       showToast("Failed to delete blog");
@@ -40,86 +49,111 @@ function BlogCard({ blog, onDeleted }) {
     }
   };
 
-  // ✅ SUPPORT BOTH OLD + NEW IMAGE FIELD
-  const image = blog.imageUrl || blog.coverImage;
-
   return (
-    <article className="blog-card fade-up">
-      <div className="card-meta">
-        <div className="avatar">{initial(blog.author)}</div>
-        <div className="who">
-          <span className="name">{blog.author || "Anonymous"}</span>
-          <span className="date">{formatDate(blog.createdAt)}</span>
-        </div>
-      </div>
+    <>
+      <article className="blog-card fade-up">
+        <div className="card-meta">
+          <div className="avatar">{initial(blog.author)}</div>
 
-      {/* ✅ COVER IMAGE FIX */}
-      {image && (
-        <img
-          src={image}
-          alt={blog.title}
-          className="blog-cover"
-        />
-      )}
+          <div className="who">
+            <span className="name">
+              {blog.author || "Anonymous"}
+            </span>
 
-      <h3>{blog.title}</h3>
-
-      <p className="blog-preview">
-        {preview.slice(0, 120)}
-        {preview.length > 120 ? "…" : ""}
-      </p>
-
-      <div className="card-footer">
-        <Link to={`/blog/${blog.id}`} className="read-more">
-          Read more <FaArrowRight />
-        </Link>
-
-        {isOwner && (
-          <div className="card-actions">
-            <Link
-              to={`/edit-blog/${blog.id}`}
-              className="icon-btn"
-              aria-label="Edit blog"
-              title="Edit"
-            >
-              <FaPen />
-            </Link>
-
-            <button
-              className="icon-btn danger"
-              aria-label="Delete blog"
-              title="Delete"
-              onClick={() => setShowConfirm(true)}
-            >
-              <FaTrashAlt />
-            </button>
+            <span className="date">
+              {formatDate(blog.createdAt)}
+            </span>
           </div>
+        </div>
+
+        {image && (
+          <img
+            src={image}
+            alt={blog.title}
+            className="blog-cover"
+          />
         )}
-      </div>
 
-{showConfirm && (
-  <div className="modal-overlay" onClick={() => setShowConfirm(false)}>
-    <div className="confirm-modal" onClick={(e) => e.stopPropagation()}>
-      <div className="modal-icon">
-        <FaExclamationTriangle />
-      </div>
+        <h3>{blog.title}</h3>
 
-      <h3>Delete this blog?</h3>
-      <p>This action can’t be undone.</p>
+        <p className="blog-preview">
+          {preview.slice(0, 120)}
+          {preview.length > 120 ? "..." : ""}
+        </p>
 
-      <div className="modal-buttons">
-        <button className="btn-ghost" onClick={() => setShowConfirm(false)}>
-          Cancel
-        </button>
+        <div className="card-footer">
+          <Link
+            to={`/blog/${blog.id}`}
+            className="read-more"
+          >
+            Read more <FaArrowRight />
+          </Link>
 
-        <button className="danger" onClick={handleDelete}>
-          Delete
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-    </article>
+          {isOwner && (
+            <div className="card-actions">
+              <Link
+                to={`/edit-blog/${blog.id}`}
+                className="icon-btn"
+                aria-label="Edit blog"
+                title="Edit"
+              >
+                <FaPen />
+              </Link>
+
+              <button
+                className="icon-btn danger"
+                aria-label="Delete blog"
+                title="Delete"
+                onClick={() => setShowConfirm(true)}
+              >
+                <FaTrashAlt />
+              </button>
+            </div>
+          )}
+        </div>
+      </article>
+
+      {showConfirm && (
+        <div
+          className="modal-overlay"
+          onClick={() => !deleting && setShowConfirm(false)}
+        >
+          <div
+            className="confirm-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-icon">
+              <FaExclamationTriangle />
+            </div>
+
+            <h3>Delete this blog?</h3>
+
+            <p>
+              This action can't be undone. Your blog
+              will be permanently removed.
+            </p>
+
+            <div className="modal-buttons">
+              <button
+                className="btn-ghost"
+                onClick={() => setShowConfirm(false)}
+                disabled={deleting}
+              >
+                Cancel
+              </button>
+
+              <button
+                className="danger"
+                onClick={handleDelete}
+                disabled={deleting}
+              >
+                {deleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 

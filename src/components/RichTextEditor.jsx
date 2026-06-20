@@ -1,107 +1,117 @@
 import { useEffect, useRef } from "react";
 import {
-  FaBold,
-  FaItalic,
-  FaUnderline,
-  FaHeading,
-  FaListUl,
-  FaListOl,
-  FaQuoteRight,
-  FaLink,
+FaBold,
+FaItalic,
+FaUnderline,
+FaHeading,
+FaListUl,
+FaListOl,
+FaQuoteRight,
+FaLink,
 } from "react-icons/fa";
 
-/**
- * Lightweight dependency-free rich text editor (contentEditable).
- * Emits HTML through onChange; `value` seeds the content (used when editing).
- */
-function RichTextEditor({ value = "", onChange, placeholder = "Write here..." }) {
+function Tool({ onClick, title, children }) {
+return (
+<button
+type="button"
+className="rte-btn"
+title={title}
+aria-label={title}
+onMouseDown={(e) => e.preventDefault()}
+onClick={onClick}
+>
+{children} </button>
+);
+}
+
+
+  function RichTextEditor({
+  value = "",
+  onChange,
+  placeholder = "Write here...",
+  }) {
   const ref = useRef(null);
 
-  // Seed/sync external value into the DOM without resetting the caret while typing.
-  useEffect(() => {
-    const el = ref.current;
-    if (el && value !== el.innerHTML) {
-      el.innerHTML = value;
-    }
-  }, [value]);
+useEffect(() => {
+const el = ref.current;
+if (el && value !== el.innerHTML) {
+el.innerHTML = value;
+}
+}, [value]);
 
-  const emit = () => onChange(ref.current?.innerHTML || "");
+const emit = () => onChange(ref.current?.innerHTML || "");
 
-  const exec = (command, arg) => {
-    ref.current?.focus();
-    document.execCommand(command, false, arg);
-    emit();
-  };
+const exec = (command, arg) => {
+ref.current?.focus();
+document.execCommand(command, false, arg);
+emit();
+};
 
-  const addLink = () => {
-    const url = window.prompt("Enter a URL");
-    if (url) exec("createLink", url);
-  };
+const addLink = () => {
+const url = window.prompt("Enter a URL");
+if (url) exec("createLink", url);
+};
 
-  const Tool = ({ onClick, title, children }) => (
-    <button
-      type="button"
-      className="rte-btn"
-      title={title}
-      aria-label={title}
-      // Prevent the editor from losing its selection on mousedown.
-      onMouseDown={(e) => e.preventDefault()}
-      onClick={onClick}
+return ( <div className="rte"> <div className="rte-toolbar">
+<Tool title="Bold" onClick={() => exec("bold")}> <FaBold /> </Tool>
+
+    <Tool title="Italic" onClick={() => exec("italic")}>
+      <FaItalic />
+    </Tool>
+
+    <Tool title="Underline" onClick={() => exec("underline")}>
+      <FaUnderline />
+    </Tool>
+
+    <span className="rte-sep" />
+
+    <Tool title="Heading" onClick={() => exec("formatBlock", "<h2>")}>
+      <FaHeading />
+    </Tool>
+
+    <Tool
+      title="Quote"
+      onClick={() => exec("formatBlock", "<blockquote>")}
     >
-      {children}
-    </button>
-  );
+      <FaQuoteRight />
+    </Tool>
 
-  return (
-    <div className="rte">
-      <div className="rte-toolbar">
-        <Tool title="Bold" onClick={() => exec("bold")}>
-          <FaBold />
-        </Tool>
-        <Tool title="Italic" onClick={() => exec("italic")}>
-          <FaItalic />
-        </Tool>
-        <Tool title="Underline" onClick={() => exec("underline")}>
-          <FaUnderline />
-        </Tool>
+    <span className="rte-sep" />
 
-        <span className="rte-sep" />
+    <Tool
+      title="Bullet list"
+      onClick={() => exec("insertUnorderedList")}
+    >
+      <FaListUl />
+    </Tool>
 
-        <Tool title="Heading" onClick={() => exec("formatBlock", "<h2>")}>
-          <FaHeading />
-        </Tool>
-        <Tool title="Quote" onClick={() => exec("formatBlock", "<blockquote>")}>
-          <FaQuoteRight />
-        </Tool>
+    <Tool
+      title="Numbered list"
+      onClick={() => exec("insertOrderedList")}
+    >
+      <FaListOl />
+    </Tool>
 
-        <span className="rte-sep" />
+    <span className="rte-sep" />
 
-        <Tool title="Bullet list" onClick={() => exec("insertUnorderedList")}>
-          <FaListUl />
-        </Tool>
-        <Tool title="Numbered list" onClick={() => exec("insertOrderedList")}>
-          <FaListOl />
-        </Tool>
+    <Tool title="Add link" onClick={addLink}>
+      <FaLink />
+    </Tool>
+  </div>
 
-        <span className="rte-sep" />
+  <div
+    ref={ref}
+    className="rte-content"
+    contentEditable
+    role="textbox"
+    aria-multiline="true"
+    data-placeholder={placeholder}
+    onInput={emit}
+    suppressContentEditableWarning
+  />
+</div>
 
-        <Tool title="Add link" onClick={addLink}>
-          <FaLink />
-        </Tool>
-      </div>
-
-      <div
-        ref={ref}
-        className="rte-content"
-        contentEditable
-        role="textbox"
-        aria-multiline="true"
-        data-placeholder={placeholder}
-        onInput={emit}
-        suppressContentEditableWarning
-      />
-    </div>
-  );
+);
 }
 
 export default RichTextEditor;

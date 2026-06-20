@@ -28,7 +28,6 @@ function EditBlog() {
         if (snap.exists()) {
           const data = snap.data();
 
-          // Ownership check
           if (data.userId !== user.uid) {
             showToast("You are not allowed to edit this blog");
             navigate("/blogs");

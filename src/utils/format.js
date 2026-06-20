@@ -17,12 +17,10 @@ export function formatDate(value) {
   });
 }
 
-// First letter for avatar initials.
 export function initial(text) {
   return (text || "?").trim().charAt(0).toUpperCase();
 }
 
-// Strip HTML tags down to plain text (for previews / word counts).
 export function stripHtml(html = "") {
   return html
     .replace(/<[^>]*>/g, " ")
@@ -31,7 +29,6 @@ export function stripHtml(html = "") {
     .trim();
 }
 
-// Rough reading time from word count.
 export function readTime(content = "") {
   const words = stripHtml(content).split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.round(words / 200));

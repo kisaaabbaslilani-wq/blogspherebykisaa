@@ -10,7 +10,6 @@ const firebaseConfig = {
   authDomain: import.meta.env.VITE_AUTH_DOMAIN || `${projectId}.firebaseapp.com`,
   projectId: projectId,
 
-  // 🔥 FORCE CORRECT BUCKET
   storageBucket: `${projectId}.appspot.com`,
 
   messagingSenderId: import.meta.env.VITE_MESSAGING_SENDER_ID,
