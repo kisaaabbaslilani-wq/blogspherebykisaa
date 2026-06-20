@@ -11,39 +11,69 @@ import { FaPenNib } from "react-icons/fa";
 function CreateBlog() {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
+  const [imageUrl, setImageUrl] = useState(""); // 🔥 NEW
   const [content, setContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  const CONTENT_LIMIT = 5000;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const plainContent = stripHtml(content);
+
     if (!user) {
-      showToast("Please log in to publish");
+      showToast("Please log in to publish 🔐");
       navigate("/login");
       return;
     }
-    if (!title.trim() || !stripHtml(content) || !author.trim()) {
-      showToast("Please fill in all fields");
+
+    if (!title.trim()) {
+      showToast("Please enter a blog title ✍️");
+      return;
+    }
+
+    if (!author.trim()) {
+      showToast("Please enter your author name 👤");
+      return;
+    }
+
+    if (!plainContent.trim()) {
+      showToast("Your blog content cannot be empty 📝");
+      return;
+    }
+
+    if (plainContent.length < 50) {
+      showToast("Content should be at least 50 characters 📚");
+      return;
+    }
+
+    if (plainContent.length > CONTENT_LIMIT) {
+      showToast(`Content cannot exceed ${CONTENT_LIMIT} characters`);
       return;
     }
 
     try {
       setSubmitting(true);
-      await addDoc(collection(db, "blogs"), {
+
+      const docRef = await addDoc(collection(db, "blogs"), {
         title: title.trim(),
-        content: content,
         author: author.trim(),
+        content,
+        imageUrl: imageUrl.trim(), // 🔥 SAVE LINK
         userId: user.uid,
         createdAt: serverTimestamp(),
       });
+
       showToast("Blog published successfully! 🎉");
       navigate("/blogs");
+
     } catch (error) {
-      console.log(error);
-      showToast("Failed to create blog");
+      console.error(error);
+      showToast(error.message || "Failed to create blog");
     } finally {
       setSubmitting(false);
     }
@@ -52,32 +82,30 @@ function CreateBlog() {
   return (
     <form className="form-card wide fade-up" onSubmit={handleSubmit}>
       <h2>Write a Blog</h2>
-      <p className="form-sub">Share your story with the BlogSphere community.</p>
 
       <div className="field">
-        <label htmlFor="title">Title</label>
+        <label>Title</label>
+        <input value={title} onChange={(e) => setTitle(e.target.value)} />
+      </div>
+
+      <div className="field">
+        <label>Author Name</label>
+        <input value={author} onChange={(e) => setAuthor(e.target.value)} />
+      </div>
+
+      {/* 🔥 NEW IMAGE URL FIELD */}
+      <div className="field">
+        <label>Image URL (optional)</label>
         <input
-          id="title"
           type="text"
-          placeholder="An eye-catching title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Paste image link here..."
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
         />
       </div>
 
       <div className="field">
-        <label htmlFor="author">Author name</label>
-        <input
-          id="author"
-          type="text"
-          placeholder="How you'd like to be credited"
-          value={author}
-          onChange={(e) => setAuthor(e.target.value)}
-        />
-      </div>
-
-      <div className="field">
-        <label htmlFor="content">Content</label>
+        <label>Content</label>
         <RichTextEditor
           value={content}
           onChange={setContent}
@@ -86,7 +114,7 @@ function CreateBlog() {
       </div>
 
       <button type="submit" className="btn-block" disabled={submitting}>
-        <FaPenNib /> {submitting ? "Publishing…" : "Publish Blog"}
+        {submitting ? "⏳ Publishing..." : <><FaPenNib /> Publish Blog</>}
       </button>
     </form>
   );

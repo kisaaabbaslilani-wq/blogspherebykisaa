@@ -15,9 +15,17 @@ function BlogDetails() {
     const fetchBlog = async () => {
       try {
         const snap = await getDoc(doc(db, "blogs", id));
-        setBlog(snap.exists() ? snap.data() : null);
+
+        if (snap.exists()) {
+          setBlog({
+            id: snap.id,
+            ...snap.data(),
+          });
+        } else {
+          setBlog(null);
+        }
       } catch (error) {
-        console.log(error);
+        console.error(error);
       } finally {
         setLoading(false);
       }
@@ -34,6 +42,7 @@ function BlogDetails() {
         <div className="empty-icon">🔍</div>
         <h3>Blog not found</h3>
         <p>This post may have been removed or the link is incorrect.</p>
+
         <Link to="/blogs" className="btn">
           Back to Blogs
         </Link>
@@ -41,28 +50,42 @@ function BlogDetails() {
     );
   }
 
+  const image = blog.imageUrl || blog.coverImage;
+
   return (
     <article className="blog-details fade-up">
       <Link to="/blogs" className="back-link">
         <FaArrowLeft /> Back to Blogs
       </Link>
 
-      {blog.imageUrl && (
-        <img src={blog.imageUrl} alt={blog.title} className="detail-img" />
+      {image && (
+        <img
+          src={image}
+          alt={blog.title}
+          className="detail-img"
+        />
       )}
 
       <h1>{blog.title}</h1>
 
       <div className="detail-meta">
-        <div className="avatar">{initial(blog.author)}</div>
+        <div className="avatar">
+          {initial(blog.author)}
+        </div>
+
         <div className="who">
-          <span className="name">{blog.author || "Anonymous"}</span>
+          <span className="name">
+            {blog.author || "Anonymous"}
+          </span>
+
           <span className="date">
             {formatDate(blog.createdAt)}
+
             {blog.content && (
               <>
-                {" · "}
-                <FaClock style={{ verticalAlign: "-1px" }} />{" "}
+                {" • "}
+                <FaClock style={{ verticalAlign: "-1px" }} />
+                {" "}
                 {readTime(blog.content)} min read
               </>
             )}
@@ -72,7 +95,9 @@ function BlogDetails() {
 
       <div
         className="blog-body"
-        dangerouslySetInnerHTML={{ __html: blog.content }}
+        dangerouslySetInnerHTML={{
+          __html: blog.content,
+        }}
       />
     </article>
   );

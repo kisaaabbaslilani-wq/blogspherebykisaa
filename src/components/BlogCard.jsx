@@ -40,6 +40,9 @@ function BlogCard({ blog, onDeleted }) {
     }
   };
 
+  // ✅ SUPPORT BOTH OLD + NEW IMAGE FIELD
+  const image = blog.imageUrl || blog.coverImage;
+
   return (
     <article className="blog-card fade-up">
       <div className="card-meta">
@@ -49,6 +52,15 @@ function BlogCard({ blog, onDeleted }) {
           <span className="date">{formatDate(blog.createdAt)}</span>
         </div>
       </div>
+
+      {/* ✅ COVER IMAGE FIX */}
+      {image && (
+        <img
+          src={image}
+          alt={blog.title}
+          className="blog-cover"
+        />
+      )}
 
       <h3>{blog.title}</h3>
 
@@ -72,6 +84,7 @@ function BlogCard({ blog, onDeleted }) {
             >
               <FaPen />
             </Link>
+
             <button
               className="icon-btn danger"
               aria-label="Delete blog"
@@ -84,29 +97,28 @@ function BlogCard({ blog, onDeleted }) {
         )}
       </div>
 
-      {showConfirm && (
-        <div className="modal-overlay" onClick={() => setShowConfirm(false)}>
-          <div className="confirm-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-icon">
-              <FaExclamationTriangle />
-            </div>
-            <h3>Delete this blog?</h3>
-            <p>This action can’t be undone. Your post will be permanently removed.</p>
-            <div className="modal-buttons">
-              <button
-                className="btn-ghost"
-                onClick={() => setShowConfirm(false)}
-                disabled={deleting}
-              >
-                Cancel
-              </button>
-              <button className="danger" onClick={handleDelete} disabled={deleting}>
-                {deleting ? "Deleting…" : "Delete"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+{showConfirm && (
+  <div className="modal-overlay" onClick={() => setShowConfirm(false)}>
+    <div className="confirm-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-icon">
+        <FaExclamationTriangle />
+      </div>
+
+      <h3>Delete this blog?</h3>
+      <p>This action can’t be undone.</p>
+
+      <div className="modal-buttons">
+        <button className="btn-ghost" onClick={() => setShowConfirm(false)}>
+          Cancel
+        </button>
+
+        <button className="danger" onClick={handleDelete}>
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </article>
   );
 }
