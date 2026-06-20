@@ -26,8 +26,16 @@ function MyBlogs() {
         );
         const snapshot = await getDocs(q);
         const data = snapshot.docs
-          .map((doc) => ({ id: doc.id, ...doc.data() }))
-          .sort(
+.map((doc) => {
+  const d = doc.data();
+
+  return {
+    id: doc.id,
+    ...d,
+    likes: d.likes ?? 0,
+    views: d.views ?? 0,
+  };
+})          .sort(
             (a, b) =>
               (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)
           );

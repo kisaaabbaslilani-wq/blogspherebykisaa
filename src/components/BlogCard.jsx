@@ -1,7 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
-import { deleteDoc, doc } from "firebase/firestore";
+import {
+  deleteDoc,
+  updateDoc,
+  increment,
+  doc,
+} from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
 import { showToast } from "../utils/toast";
 import { formatDate, initial, stripHtml } from "../utils/format";
@@ -20,7 +25,6 @@ function BlogCard({ blog, onDeleted }) {
 
   const isOwner = user?.uid === blog.userId;
   const preview = stripHtml(blog.content || "");
-
   const image = blog.imageUrl || blog.coverImage;
 
   const handleDelete = async () => {
@@ -35,7 +39,6 @@ function BlogCard({ blog, onDeleted }) {
       await deleteDoc(doc(db, "blogs", blog.id));
 
       showToast("Blog deleted successfully");
-
       setShowConfirm(false);
 
       if (onDeleted) {
@@ -46,6 +49,17 @@ function BlogCard({ blog, onDeleted }) {
       showToast("Failed to delete blog");
     } finally {
       setDeleting(false);
+    }
+  };
+
+  const handleLike = async () => {
+    try {
+      await updateDoc(doc(db, "blogs", blog.id), {
+        likes: increment(1),
+      });
+    } catch (err) {
+      console.error("Like failed:", err.message);
+      showToast("Failed to like post");
     }
   };
 
@@ -81,6 +95,17 @@ function BlogCard({ blog, onDeleted }) {
           {preview.length > 120 ? "..." : ""}
         </p>
 
+<div className="blog-stats">
+  <span> Views: {blog.views ?? 0}</span>
+  <span> Likes: {blog.likes ?? 0}</span>
+</div>
+
+<div className="like-wrapper">
+  <button className="like-btn" onClick={handleLike}>
+    ❤️ Like
+  </button>
+</div>
+
         <div className="card-footer">
           <Link
             to={`/blog/${blog.id}`}
@@ -94,16 +119,12 @@ function BlogCard({ blog, onDeleted }) {
               <Link
                 to={`/edit-blog/${blog.id}`}
                 className="icon-btn"
-                aria-label="Edit blog"
-                title="Edit"
               >
                 <FaPen />
               </Link>
 
               <button
                 className="icon-btn danger"
-                aria-label="Delete blog"
-                title="Delete"
                 onClick={() => setShowConfirm(true)}
               >
                 <FaTrashAlt />
@@ -113,6 +134,7 @@ function BlogCard({ blog, onDeleted }) {
         </div>
       </article>
 
+      {/* DELETE MODAL */}
       {showConfirm && (
         <div
           className="modal-overlay"

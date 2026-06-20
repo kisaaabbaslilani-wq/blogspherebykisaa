@@ -29,10 +29,16 @@ function Blogs() {
           orderBy("createdAt", "desc")
         );
         const snapshot = await getDocs(q);
-        const data = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+      const data = snapshot.docs.map((doc) => {
+  const d = doc.data();
+
+  return {
+    id: doc.id,
+    ...d,
+    likes: d.likes ?? 0,
+    views: d.views ?? 0,
+  };
+});
         setBlogs(data);
       } catch (error) {
         console.log(error);

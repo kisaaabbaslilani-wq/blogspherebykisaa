@@ -11,6 +11,8 @@ import {
 function Home() {
   const { user } = useAuth();
 
+
+
   return (
     <div className="page">
       <section className="hero">

@@ -59,14 +59,16 @@ function CreateBlog() {
     try {
       setSubmitting(true);
 
-      await addDoc(collection(db, "blogs"), {
-        title: title.trim(),
-        author: author.trim(),
-        content,
-        imageUrl: imageUrl.trim(),
-        userId: user.uid,
-        createdAt: serverTimestamp(),
-      });
+await addDoc(collection(db, "blogs"), {
+  title: title.trim(),
+  author: author.trim(),
+  content,
+  imageUrl: imageUrl.trim(),
+  userId: user.uid,
+  likes: 0,
+  views: 0,
+  createdAt: serverTimestamp(),
+});
 
       showToast("Blog published successfully! 🎉");
       navigate("/blogs");

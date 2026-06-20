@@ -882,3 +882,35 @@ textarea { min-height: 200px; resize: vertical; line-height: 1.7; }
     font-size: 34px;
   }
 }
+
+
+
+.blog-stats {
+  display: flex;
+  gap: 16px;
+  margin: 10px 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.like-wrapper {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 10px;
+}
+
+.like-btn {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 10px;
+  background: #fee2e2;
+  color: black;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.like-btn:hover {
+  transform: scale(1.05);
+  background: #fee2e2;
+}
